@@ -8,56 +8,45 @@ public class playerMove : MonoBehaviour
     public playerDefinition _SOPlayerDefinition;
 
     [Header("Player Movement Component")]
-    public float playerSpeed;
-    public float playerSprintSpeed;
-    private float _playerOriginSpeed;
+    [SerializeField] private float playerSpeed;
+    [SerializeField] private float playerSprintSpeed;
+    [SerializeField] private float _playerOriginSpeed;
     public float playerOriginSpeed
     {
         get { return _playerOriginSpeed; }
         set { _playerOriginSpeed = value; }
     }
     public Vector2 playerDirection;
-
+    public bool isSprint;
 
     [Header("Reference")]
     Rigidbody2D myRb;
     Animator myAnim;
 
-    /// <summary>
-    /// Awake is called when the script instance is being loaded.
-    /// </summary>
     private void Awake()
     {
         myRb = GetComponent<Rigidbody2D>();
         myAnim = GetComponent<Animator>();
-    }
-
-    /// <summary>
-    /// Update is called every frame, if the MonoBehaviour is enabled.
-    /// </summary>
-    private void Start()
-    {
         playerSpeed = _SOPlayerDefinition.speed;
         playerSprintSpeed = _SOPlayerDefinition.sprintSpeed;
     }
 
-    /// <summary>
-    /// Update is called every frame, if the MonoBehaviour is enabled.
-    /// </summary>
+    private void Start()
+    {
+        playerOriginSpeed = playerSpeed;
+    }
+
     private void Update()
     {
-
+        PlayerSprint();
     }
 
-    /// <summary>
-    /// This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
-    /// </summary>
     private void FixedUpdate()
     {
-        playerWalk();
+        PlayerWalk();
     }
 
-    void playerWalk()
+    void PlayerWalk()
     {
         float moveX, moveY;
         moveX = Input.GetAxisRaw("Horizontal");
@@ -67,7 +56,11 @@ public class playerMove : MonoBehaviour
         playerDirection.Normalize();
 
         myRb.velocity = playerDirection * playerSpeed;
+        PlayerAnimationDirection();
+    }
 
+    void PlayerAnimationDirection()
+    {
         if (playerDirection != Vector2.zero)
         {
             myAnim.SetFloat("Hori", playerDirection.x);
@@ -76,9 +69,21 @@ public class playerMove : MonoBehaviour
         }
         else
         {
-            myAnim.SetFloat("Hori", playerDirection.x);
-            myAnim.SetFloat("Vert", playerDirection.y);
             myAnim.SetBool("isWalk", false);
+        }
+    }
+
+    void PlayerSprint()
+    {
+        isSprint = Input.GetKey(KeyCode.LeftShift);
+        playerSpeed = isSprint ? playerSprintSpeed : playerOriginSpeed;
+        if (isSprint)
+        {
+            Debug.Log("Sprint Speed" + playerSpeed);
+        }
+        else
+        {
+            Debug.Log("Normal Speed" + playerSpeed);
         }
     }
 }
