@@ -18,8 +18,17 @@ public class playerMove : MonoBehaviour
     }
     public Vector2 playerDirection;
     public bool isSprint;
+    public bool isLock;
+
+    [Header("Aim Area")]
+    public float radius;
+    public Transform target;
+    public LayerMask targets;
+    public Vector2 targetDirection;
+    public bool isLockTarget;
 
     [Header("Reference")]
+    public GameObject crossHair;
     Rigidbody2D myRb;
     Animator myAnim;
 
@@ -39,6 +48,11 @@ public class playerMove : MonoBehaviour
     private void Update()
     {
         PlayerSprint();
+
+        #region Aim
+        LockTargetOnEnemy();
+        AimDirection();
+        #endregion
     }
 
     private void FixedUpdate()
@@ -69,6 +83,11 @@ public class playerMove : MonoBehaviour
         }
         else
         {
+            if (isLock)
+            {
+                myAnim.SetFloat("Hori", targetDirection.x);
+                myAnim.SetFloat("Vert", targetDirection.y);
+            }
             myAnim.SetBool("isWalk", false);
         }
     }
@@ -85,5 +104,41 @@ public class playerMove : MonoBehaviour
         {
             Debug.Log("Normal Speed" + playerSpeed);
         }
+    }
+
+    void LockTargetOnEnemy()
+    {
+        isLock = Input.GetKeyDown(KeyCode.X) && playerDirection == Vector2.zero || OnArea();
+
+        if (Input.GetKeyDown(KeyCode.X) && OnArea())
+        {
+            Debug.Log("Lock Target");
+            crossHair.SetActive(true);
+        }
+        else if (!OnArea())
+        {
+            crossHair.SetActive(false);
+        }
+    }
+
+    void AimDirection()
+    {
+        float aimX, aimY;
+        aimX = crossHair.transform.position.x - transform.position.x;
+        aimY = crossHair.transform.position.y - transform.position.y;
+
+        targetDirection = new Vector2(aimX, aimY);
+        targetDirection.Normalize();
+    }
+
+    bool OnArea()
+    {
+        return Physics2D.OverlapCircle(target.position, radius, targets);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(target.position, radius);
     }
 }
