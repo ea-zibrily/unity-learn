@@ -7,7 +7,7 @@ public class WeaponLock : MonoBehaviour
     public Transform target;
     public float radius;
     public LayerMask targets;
-    
+
     private void Update()
     {
         FindTarget();

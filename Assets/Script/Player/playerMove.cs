@@ -108,16 +108,20 @@ public class playerMove : MonoBehaviour
 
     void LockTargetOnEnemy()
     {
-        isLock = Input.GetKeyDown(KeyCode.X) && playerDirection == Vector2.zero || OnArea();
-
-        if (Input.GetKeyDown(KeyCode.X) && OnArea())
+        if(OnArea())
         {
-            Debug.Log("Lock Target");
-            crossHair.SetActive(true);
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                Debug.Log("Lock Target");
+                crossHair.SetActive(true);
+                isLock = true;
+            }
         }
-        else if (!OnArea())
+        else
         {
             crossHair.SetActive(false);
+            Debug.Log("No Target Detected");
+            isLock = false;
         }
     }
 
